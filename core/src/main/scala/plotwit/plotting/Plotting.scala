@@ -58,7 +58,7 @@ object Plotting:
       schema: String = "https://vega.github.io/schema/vega-lite/v6.json"
   )
 
-  opaque type Grid = VConcatSpec
+  opaque type Grid <: VegaLiteSpec = VConcatSpec
 
   def overlay(plots: VegaLiteSpec*): LayerSpec = LayerSpec(plots)
   def hconcat(plots: Seq[VegaLiteSpec]): HConcatSpec = HConcatSpec(specs = plots)
@@ -166,7 +166,7 @@ object Plotting:
       "title": "Image",
       "description": "Image created from data.",
       "data": { "values": [] },
-      "mark": { "type": "image", "width": 300, "height": 300 },
+      "mark": { "type": "image", "width": 300, "height": 300, "smooth": false },
       "encoding": {
         "url": {"field": "image_url", "type": "nominal"}
       }
@@ -435,7 +435,7 @@ object Plotting:
         )
       )
 
-  def grid(rows: List[List[VegaLiteSpec]]): Grid = VConcatSpec(specs = rows.map(row => HConcatSpec(specs = row)))
+  def grid(rows: Seq[Seq[VegaLiteSpec]]): Grid = VConcatSpec(specs = rows.map(row => HConcatSpec(specs = row)))
 
   def display(spec: VegaLiteSpec)(using ev: LowPriorityPlotTarget): VizReturn =
     toJsonRoot(spec).plot()
