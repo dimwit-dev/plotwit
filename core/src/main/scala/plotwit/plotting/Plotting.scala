@@ -24,6 +24,11 @@ import javax.imageio.ImageIO
 
 import io.circe.Json
 
+import java.io.ByteArrayInputStream
+import java.awt.image.BufferedImage
+import javax.imageio.ImageIO
+import scala.util.Using
+
 object Plotting:
 
   type VegaJson = Json
@@ -65,28 +70,10 @@ object Plotting:
   def vconcat(plots: Seq[VegaLiteSpec]): VConcatSpec = VConcatSpec(specs = plots)
   def slider(plots: Seq[VegaLiteSpec]): SliderSpec = SliderSpec(plots)
 
-  trait Plot1[M, MData](val template: VegaSpec[M & MData]):
+  class PlotTemplate[M0](val template: VegaSpec[M0]):
+    type M = M0
 
-    def encodeData[L: Label](data: Tensor1[L, Float32]): Seq[MData => SpecMod]
-
-    def plot[L: Label](data: Tensor1[L, Float32], mods: (M => SpecMod)*): UnitSpec = UnitSpec:
-      template.build((encodeData(data) ++ mods)*)
-
-  trait Plot2[M, MData](val template: VegaSpec[M & MData]):
-
-    def encodeData[L1: Label, L2: Label](data: Tensor2[L1, L2, Float32]): Seq[MData => SpecMod]
-
-    def plot[L1: Label, L2: Label](data: Tensor2[L1, L2, Float32], mods: (M => SpecMod)*): UnitSpec = UnitSpec:
-      template.build((encodeData(data) ++ mods)*)
-
-  trait Plot2UInt8[M, MData](val template: VegaSpec[M & MData]):
-
-    def encodeData[L1: Label, L2: Label](data: Tensor2[L1, L2, UInt8]): Seq[MData => SpecMod]
-
-    def plot[L1: Label, L2: Label](data: Tensor2[L1, L2, UInt8], mods: (M => SpecMod)*): UnitSpec = UnitSpec:
-      template.build((encodeData(data) ++ mods)*)
-
-  lazy val histogram = new Plot1(
+  lazy val histogramPlotTemplate = new PlotTemplate(
     VegaPlot.fromString("""
       {
       "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
@@ -99,12 +86,19 @@ object Plotting:
         "y": {"aggregate": "count", "type": "quantitative"}
       }
     }""")
-  ):
-    def encodeData[L: Label](data: Tensor1[L, Float32]) = Seq:
-      _.data.values := Json.fromValues(data.toArray.map: v =>
-        Json.obj("value" -> Json.fromFloatOrNull(v)))
+  )
+  object histogramPlot:
+    import histogramPlotTemplate.{M, template}
+    def apply[L: Label](data: Tensor1[L, Float32], mods: (M => SpecMod)*): UnitSpec = UnitSpec:
+      template.build((
+        Seq[M => SpecMod](
+          _.data.values := data.toArray.map: v =>
+            Map("value" -> v)
+          .asJson
+        ) ++ mods
+      )*)
 
-  lazy val heatmap = new Plot2(
+  private lazy val heatmapPlotTemplate = new PlotTemplate(
     VegaPlot.fromString("""
       {
         "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
@@ -143,24 +137,27 @@ object Plotting:
           }
         }
       }""")
-  ):
-    def encodeData[L1: Label, L2: Label](data: Tensor2[L1, L2, Float32]) =
+  )
+
+  object heatmapPlot:
+    import heatmapPlotTemplate.{M, template}
+    def apply[L1: Label, L2: Label](data: Tensor2[L1, L2, Float32], mods: (M => SpecMod)*): UnitSpec = UnitSpec:
       val rows = data.shape(Axis[L1])
       val cols = data.shape(Axis[L2])
       val array = data.toArray
-      val jsonValues = Json.fromValues(
+      val jsonValues = (
         for
           r <- 0 until rows
           c <- 0 until cols
-        yield Json.obj(
-          "x" -> Json.fromInt(c),
-          "y" -> Json.fromInt(r),
-          "value" -> Json.fromFloatOrNull(array(r)(c))
+        yield Map(
+          "x" -> c.toFloat,
+          "y" -> r.toFloat,
+          "value" -> array(r)(c)
         )
-      )
-      Seq(_.data.values := jsonValues)
+      ).asJson
+      template.build((Seq[M => SpecMod](_.data.values := jsonValues) ++ mods)*)
 
-  lazy val image = new Plot2UInt8(
+  private lazy val imagePlotTemplate = new PlotTemplate(
     VegaPlot.fromString("""{
       "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
       "title": "Image",
@@ -171,10 +168,15 @@ object Plotting:
         "url": {"field": "image_url", "type": "nominal"}
       }
     }""")
-  ):
-    def encodeData[L1: Label, L2: Label](img: Tensor2[L1, L2, UInt8]) =
-      val width = img.shape(Axis[L1])
-      val height = img.shape(Axis[L2])
+  )
+
+  object imagePlot:
+    import imagePlotTemplate.{M, template}
+
+    def apply[Width: Label, Height: Label](img: Tensor2[Width, Height, UInt8], mods: (M => SpecMod)*): UnitSpec = UnitSpec:
+
+      val width = img.shape(Axis[Width])
+      val height = img.shape(Axis[Height])
 
       val bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY)
       val data = img.asInt32.toArray
@@ -189,7 +191,7 @@ object Plotting:
       val base64Str = Base64.getEncoder.encodeToString(baos.toByteArray)
       val dataUri = s"data:image/png;base64,$base64Str"
 
-      Seq(
+      template.build((Seq[M => SpecMod](
         _.data.values := Json.fromValues(
           Iterable(
             Json.obj("image_url" -> Json.fromString(dataUri))
@@ -197,16 +199,9 @@ object Plotting:
         ),
         _.mark.width := width,
         _.mark.height := height
-      )
+      ) ++ mods)*)
 
-  trait PlotTree[M, MData](val template: VegaSpec[M & MData]):
-    /** Encodes a generic TensorTree structure into Vega-compatible hierarchical data */
-    def encodeData[P](data: P)(using tt: TensorTree[P]): Seq[MData => SpecMod]
-
-    def plot[P](data: P, mods: (M => SpecMod)*)(using tt: TensorTree[P]): UnitSpec = UnitSpec:
-      template.build((encodeData(data) ++ mods)*)
-
-  lazy val tensorTreePlot = new PlotTree(
+  lazy val treePlotTemplate = new PlotTemplate(
     VegaPlot.fromString("""
       {
         "$schema": "https://vega.github.io/schema/vega/v5.json",
@@ -297,8 +292,14 @@ object Plotting:
           }
         ]
       }""")
-  ):
-    def encodeData[P](data: P)(using tt: TensorTree[P]) =
+  )
+
+  object treePlot:
+    import treePlotTemplate.{M, template}
+    def apply[P](data: P, mods: (M => SpecMod)*)(using tt: TensorTree[P]): UnitSpec = UnitSpec:
+      template.build((encodeData(data) ++ mods)*)
+
+    def encodeData[P](data: P)(using tt: TensorTree[P]): Seq[M => SpecMod] =
       // 1. Gather all leaves and their label info
       val leaves = scala.collection.mutable.ListBuffer[(String, String)]()
       tt.foreachWithName(
@@ -353,6 +354,72 @@ object Plotting:
       // Note: Since Vega v5 expects `data` to be an array, we target `.head.values`.
       // Adjust this to `_.data(0).values` depending on your specific Vega wrapper's generated code.
       Seq(_.data.head.values := jsonValues)
+
+  lazy val scatterPlotTemplate = new PlotTemplate(
+    VegaPlot.fromString("""
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+        "description": "Scatter plot",
+        "title": "",
+        "data": { "values": [] },
+        "mark": { "type": "circle", "filled": true },
+        "encoding": {
+          "x": { 
+            "field": "x", 
+            "type": "quantitative", 
+            "title": "X" ,
+            "scale": { "domain": [] }
+          },
+          "y": { 
+            "field": "y", 
+            "type": "quantitative", 
+            "title": "Y",
+            "scale": { "domain": [] }
+          },
+          "size": { 
+            "field": "size", 
+            "type": "quantitative", 
+            "legend": null 
+          },
+          "color": { 
+            "field": "particle_id", 
+            "type": "nominal", 
+            "legend": null 
+          }
+        }
+      }""")
+  )
+  object scatterPlot:
+    import scatterPlotTemplate.{M, template}
+    def apply[S: Label](xs: Tensor1[S, Float32], ys: Tensor1[S, Float32], mods: (M => SpecMod)*): UnitSpec =
+      apply(xs, ys, None, mods)
+
+    def apply[S: Label](xs: Tensor1[S, Float32], ys: Tensor1[S, Float32], size: Tensor1[S, Float32], mods: (M => SpecMod)*): UnitSpec =
+      apply(xs, ys, Some(size), mods)
+
+    private def apply[S: Label](
+        xs: Tensor1[S, Float32],
+        ys: Tensor1[S, Float32],
+        maybeSizes: Option[Tensor1[S, Float32]],
+        mods: Seq[M => SpecMod]
+    ): UnitSpec = UnitSpec:
+      val numParticles = xs.shape(Axis[S])
+      val xsArray = xs.toArray
+      val ysArray = ys.toArray
+      val sizeArray = maybeSizes.map(_.toArray)
+
+      template.build((Seq[M => SpecMod](
+        _.data.values := (0 until numParticles).map: i =>
+          Json.obj(
+            "particle_id" -> Json.fromString(s"P_$i"),
+            "x" -> xsArray(i).asJson,
+            "y" -> ysArray(i).asJson,
+            "size" -> sizeArray.map(_(i)).getOrElse(30.0f).asJson
+          )
+        .asJson,
+        _.encoding.x.scale.domain := List(xs.min.item - 1, xs.max.item + 1).asJson,
+        _.encoding.y.scale.domain := List(ys.min.item - 1, ys.max.item + 1).asJson
+      ) ++ mods)*)
 
   private def stripSchema(json: VegaJson): VegaJson = json.mapObject(_.remove("$schema"))
 
@@ -439,3 +506,11 @@ object Plotting:
 
   def display(spec: VegaLiteSpec)(using ev: LowPriorityPlotTarget): VizReturn =
     toJsonRoot(spec).plot()
+
+  def displayAsImage(spec: VegaLiteSpec, scale: Double = 1.0): BufferedImage =
+    val jsonString = toJsonRoot(spec).noSpaces
+    val vl2pngCommand = f"vl2png -s $scale"
+    val result = os.proc(vl2pngCommand.split(" ")).call(stdin = jsonString, check = false)
+    Using(new ByteArrayInputStream(result.out.bytes)): inputStream =>
+      ImageIO.read(inputStream)
+    .get

@@ -1,11 +1,10 @@
-package src.main.scala
+package plotwit.examples.paramtree
 
 import dimwit.*
 import plotwit.*
-import plotwit.plotting.Plotting
 
 @main
-def plotTensorTreeExample(): Unit =
+def plotParamTreeExample(): Unit =
 
   dimwit.initialize()
 
@@ -30,11 +29,11 @@ def plotTensorTreeExample(): Unit =
     classifier = layer
   )
 
-  val spec = Plotting.tensorTreePlot.plot(
+  val spec = treePlot(
     model,
     _.title := "MyModel Parameter Hierarchy",
     _.width := 900
   )
 
   import viz.PlotTargets.desktopBrowser
-  Plotting.display(spec)
+  display(spec)

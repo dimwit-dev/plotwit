@@ -4,7 +4,6 @@ import dimwit.*
 import dimwit.Conversions.given
 import dimwit.stats.Normal
 import plotwit.*
-import plotwit.plotting.Plotting.*
 
 @main
 def main(): Unit =
@@ -61,7 +60,7 @@ def main(): Unit =
     .map:
       case (t, c) =>
         val img = (t -! min) /! (max - min)
-        image.plot(
+        imagePlot(
           (img *! 255.0f).asInt(VType[UInt8]),
           _.title := f"$c"
         )

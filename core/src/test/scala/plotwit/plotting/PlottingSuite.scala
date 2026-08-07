@@ -8,7 +8,7 @@ class HistogramPlotSuite extends DimwitTestSuite:
   describe("plotHistogram"):
     it("should generate a Vega-Lite spec with a custom title and mapped data"):
       val data = Tensor1(Axis[A]).fromArray(Array(1.0f, 2.5f, 2.5f, 4.0f))
-      val spec = Plotting.histogram.plot(
+      val spec = histogramPlot(
         data,
         _.title := "Histogram of Values",
         _.mark.`type` := "area"
@@ -27,7 +27,7 @@ class HistogramPlotSuite extends DimwitTestSuite:
       val data = Tensor2(Axis[A], Axis[B]).fromArray(
         Array(Array(1.0f, 2.0f), Array(3.0f, 4.0f))
       )
-      val spec = Plotting.heatmap.plot(
+      val spec = heatmapPlot(
         data,
         _.title := "Heatmap Matrix",
         _.encoding.x.title := "X Axis Title",

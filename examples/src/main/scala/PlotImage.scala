@@ -1,10 +1,9 @@
-package src.main.scala
+package plotwit.examples.image
 
 import dimwit.*
 import dimwit.Conversions.given
 import plotwit.*
-import plotwit.plotting.Plotting
-import plotwit.plotting.Plotting.*
+
 import dimwit.stats.Normal
 
 @main
@@ -25,10 +24,10 @@ def plotImages(): Unit =
     (normalizedImg *! 255f).asInt(VType[UInt8])
 
   val specs = imgs.zipWithIndex.map: (img, idx) =>
-    Plotting.image.plot(
+    imagePlot(
       img,
       _.title := f"Random Normal Image $idx"
     )
 
   import viz.PlotTargets.desktopBrowser
-  Plotting.display(hconcat(specs))
+  display(hconcat(specs))
