@@ -1,7 +1,7 @@
-package plotwit.plotting
+package plotwit.plots
 
-import dimwit.*
-import plotwit.*
+import dimwit._
+import plotwit._
 
 class HistogramPlotSuite extends DimwitTestSuite:
 

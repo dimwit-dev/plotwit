@@ -1,7 +1,7 @@
 package plotwit.examples.heatmaps
 
-import dimwit.*
-import plotwit.*
+import dimwit._
+import plotwit._
 
 @main
 def plotHeatmaps(): Unit =
@@ -31,7 +31,7 @@ def plotHeatmaps(): Unit =
 
   val specs = data.unstack(Axis[A]).zipWithIndex.map:
     case (t, c) =>
-      heatmapPlot(
+      plots.heatmapPlot(
         t,
         _.title := f"Heatmap Matrix (c=$c)",
         _.encoding.x.axis.labelAngle := 90

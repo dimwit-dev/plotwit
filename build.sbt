@@ -8,6 +8,13 @@ ThisBuild / organization := "ch.contrafactus"
 // Add resolver for snapshot dependencies
 ThisBuild / resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
+// Setup for Scalafix and SemanticDB
+inThisBuild(Seq(
+  semanticdbEnabled := true,
+  semanticdbVersion := scalafixSemanticdb.revision,
+  semanticdbOptions += "-Wunused:imports"
+))
+
 addCommandAlias("testAndCoverage", "; clean; coverage; test; coverageReport")
 
 lazy val root = (project in file("."))

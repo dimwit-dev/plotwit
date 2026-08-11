@@ -1,10 +1,9 @@
 package plotwit.examples.image
 
-import dimwit.*
 import dimwit.Conversions.given
-import plotwit.*
-
+import dimwit._
 import dimwit.stats.Normal
+import plotwit._
 
 @main
 def plotImages(): Unit =
@@ -24,7 +23,7 @@ def plotImages(): Unit =
     (normalizedImg *! 255f).asInt(VType[UInt8])
 
   val specs = imgs.zipWithIndex.map: (img, idx) =>
-    imagePlot(
+    plots.imagePlot(
       img,
       _.title := f"Random Normal Image $idx"
     )

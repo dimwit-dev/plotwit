@@ -1,6 +1,6 @@
 package plotwit
 
-import dimwit.*
+import dimwit._
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 

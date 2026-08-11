@@ -1,2 +1,2 @@
 package object plotwit:
-  export plotwit.plotting.Plotting.*
+  export plotwit.Core.*

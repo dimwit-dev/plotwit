@@ -1,9 +1,8 @@
 package plotwit.examples.heatequation
 
-import dimwit.*
 import dimwit.Conversions.given
-import dimwit.stats.Normal
-import plotwit.*
+import dimwit._
+import plotwit._
 
 @main
 def main(): Unit =
@@ -60,10 +59,10 @@ def main(): Unit =
     .map:
       case (t, c) =>
         val img = (t -! min) /! (max - min)
-        imagePlot(
+        plots.imagePlot(
           (img *! 255.0f).asInt(VType[UInt8]),
           _.title := f"$c"
         )
 
-  import viz.PlotTargets.desktopBrowser
+  import plotwit.PlotTargets.desktopBrowser
   display(grid(specs.take(50).grouped(10).toList))

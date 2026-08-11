@@ -1,14 +1,14 @@
 package plotwit.examples.nbody
 
-import dimwit.*
 import dimwit.Conversions.given
+import dimwit._
 import dimwit.stats.Uniform
-import dimwit.stats.Normal
-import plotwit.*
-import io.circe.syntax.*
-import scala.util.Using
+import io.circe.syntax._
+import plotwit._
+
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
+import scala.util.Using
 
 object NBodyProblem:
 
@@ -109,7 +109,7 @@ object NBodyProblem:
         case (state, i) =>
           val xs = state.positions.slice(Axis[Spatial].at(0))
           val ys = state.positions.slice(Axis[Spatial].at(1))
-          scatterPlot(
+          plots.scatterPlot(
             xs,
             ys,
             state.masses,
@@ -118,7 +118,7 @@ object NBodyProblem:
             _.encoding.y.scale.domain := List(-3, 3).asJson
           )
 
-    import viz.PlotTargets.desktopBrowser
+    import plotwit.PlotTargets.desktopBrowser
     display(slider(LazyList.from(specs).take(1200)))
 
     // Export to Animated PNG

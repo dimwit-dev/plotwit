@@ -1,7 +1,7 @@
 package plotwit.examples.paramtree
 
-import dimwit.*
-import plotwit.*
+import dimwit._
+import plotwit._
 
 @main
 def plotParamTreeExample(): Unit =
@@ -29,7 +29,7 @@ def plotParamTreeExample(): Unit =
     classifier = layer
   )
 
-  val spec = treePlot(
+  val spec = plots.tensorTreeShapePlot(
     model,
     _.title := "MyModel Parameter Hierarchy",
     _.width := 900
