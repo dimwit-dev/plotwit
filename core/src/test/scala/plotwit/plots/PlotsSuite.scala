@@ -41,3 +41,26 @@ class HistogramPlotSuite extends DimwitTestSuite:
       specString should include("rect")
       specString should include("1.0")
       specString should include("4.0")
+
+  describe("plotLine"):
+    it("should generate a Vega-Lite spec with one named line per series"):
+      val xs = Tensor1(Axis[A]).fromArray(Array(0.0f, 1.0f, 2.0f))
+      val ys = Tensor2(Axis[B], Axis[A]).fromArray(
+        Array(Array(0.0f, 1.0f, 4.0f), Array(0.0f, -1.0f, -4.0f))
+      )
+      val spec = linePlot(
+        xs,
+        ys,
+        Seq("up", "down"),
+        _.title := "Two Lines",
+        _.encoding.y.title := "Y Axis Title"
+      )
+
+      val specString = spec.toString
+
+      specString should include("Two Lines")
+      specString should include("Y Axis Title")
+      specString should include("line")
+      specString should include("up")
+      specString should include("down")
+      specString should include("-4.0")
