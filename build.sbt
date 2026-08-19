@@ -6,7 +6,7 @@ ThisBuild / scalaVersion := "3.8.1"
 ThisBuild / organization := "ch.contrafactus"
 
 // Add resolver for snapshot dependencies
-ThisBuild / resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+ThisBuild / resolvers += "Central Portal Snapshots" at "https://central.sonatype.com/repository/maven-snapshots/"
 
 // Setup for Scalafix and SemanticDB
 inThisBuild(Seq(
@@ -58,3 +58,11 @@ lazy val examples = (project in file("examples"))
     Compile / scalaSource := baseDirectory.value,
     Compile / resourceDirectory := baseDirectory.value / "src" / "main" / "resources"
   )
+
+// Renders the plots of the README gallery into docs/plots
+lazy val renderPlots = taskKey[Unit]("Render every plot of the README gallery into docs/plots")
+
+renderPlots := Def.taskDyn {
+  val outDir = (ThisBuild / baseDirectory).value / "docs" / "plots"
+  (examples / Compile / runMain).toTask(s" plotwit.examples.plots.renderPlots ${outDir.getAbsolutePath}")
+}.value

@@ -112,15 +112,3 @@ def plot(): Unit =
 
   import plotwit.PlotTargets.desktopBrowser
   display(slider(specTrajectory.take(1200).toSeq))
-
-  // Export to Animated PNG
-  // val images = specs.map(displayAsImage(_)).take(600).toList
-  // createAnimation(images, os.pwd / "nbody_animation.gif", fps = 30)
-
-def createAnimation(images: Seq[BufferedImage], outputPath: os.Path, fps: Int): Boolean =
-  val cmdString = s"ffmpeg -y -f image2pipe -vcodec png -r $fps -i - -vf split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse -loop 0"
-  val ffmpegCmd = cmdString.split(" ").toSeq :+ outputPath.toString
-  val subProcess = os.proc(ffmpegCmd).spawn()
-  Using(subProcess.stdin): stdin =>
-    images.foreach(ImageIO.write(_, "png", stdin))
-  subProcess.join()

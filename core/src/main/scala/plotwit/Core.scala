@@ -5,11 +5,6 @@ import io.github.quafadas.plots.SetupVega.{_, given}
 import viz.LowPriorityPlotTarget
 import viz.VizReturn
 
-import java.awt.image.BufferedImage
-import java.io.ByteArrayInputStream
-import javax.imageio.ImageIO
-import scala.util.Using
-
 object Core:
 
   type VegaJson = io.circe.Json
@@ -139,11 +134,3 @@ object Core:
 
   def display(spec: VegaLiteSpec)(using ev: LowPriorityPlotTarget): VizReturn =
     toJsonRoot(spec).plot()
-
-  def displayAsImage(spec: VegaLiteSpec, scale: Double = 1.0): BufferedImage =
-    val jsonString = toJsonRoot(spec).noSpaces
-    val vl2pngCommand = f"vl2png -s $scale"
-    val result = os.proc(vl2pngCommand.split(" ")).call(stdin = jsonString, check = false)
-    Using(new ByteArrayInputStream(result.out.bytes)): inputStream =>
-      ImageIO.read(inputStream)
-    .get

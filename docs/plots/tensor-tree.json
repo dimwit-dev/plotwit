@@ -1,0 +1,203 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "title": "MyModel parameter hierarchy",
+  "description": "Tree layout for DimWit TensorTree structures",
+  "width": 900,
+  "height": 400,
+  "padding": 20,
+  "data": [
+    {
+      "name": "tree",
+      "values": [
+        {
+          "id": "classifier.weights",
+          "parent": "classifier",
+          "name": "weights: TensorShape(In -> 2, Hidden -> 2)"
+        },
+        {
+          "id": "featureExtractor.layer1",
+          "parent": "featureExtractor",
+          "name": "layer1"
+        },
+        {
+          "id": "featureExtractor.layer1.weights",
+          "parent": "featureExtractor.layer1",
+          "name": "weights: TensorShape(In -> 2, Hidden -> 2)"
+        },
+        {
+          "id": "featureExtractor.layer2",
+          "parent": "featureExtractor",
+          "name": "layer2"
+        },
+        {
+          "id": "featureExtractor",
+          "parent": "root",
+          "name": "featureExtractor"
+        },
+        {
+          "id": "root",
+          "parent": null,
+          "name": "root"
+        },
+        {
+          "id": "classifier",
+          "parent": "root",
+          "name": "classifier"
+        },
+        {
+          "id": "featureExtractor.layer2.bias",
+          "parent": "featureExtractor.layer2",
+          "name": "bias: TensorShape(Hidden -> 2)"
+        },
+        {
+          "id": "classifier.bias",
+          "parent": "classifier",
+          "name": "bias: TensorShape(Hidden -> 2)"
+        },
+        {
+          "id": "featureExtractor.layer1.bias",
+          "parent": "featureExtractor.layer1",
+          "name": "bias: TensorShape(Hidden -> 2)"
+        },
+        {
+          "id": "featureExtractor.layer2.weights",
+          "parent": "featureExtractor.layer2",
+          "name": "weights: TensorShape(In -> 2, Hidden -> 2)"
+        }
+      ],
+      "transform": [
+        {
+          "type": "stratify",
+          "key": "id",
+          "parentKey": "parent"
+        },
+        {
+          "type": "tree",
+          "method": "tidy",
+          "size": [
+            {
+              "signal": "height"
+            },
+            {
+              "signal": "width - 150"
+            }
+          ],
+          "separation": false,
+          "as": [
+            "y",
+            "x",
+            "depth",
+            "children"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "links",
+      "source": "tree",
+      "transform": [
+        {
+          "type": "treelinks"
+        },
+        {
+          "type": "linkpath",
+          "orient": "horizontal",
+          "shape": "diagonal"
+        }
+      ]
+    }
+  ],
+  "scales": [
+    {
+      "name": "color",
+      "type": "linear",
+      "range": {
+        "scheme": "tealblues"
+      },
+      "domain": {
+        "data": "tree",
+        "field": "depth"
+      },
+      "zero": true
+    }
+  ],
+  "marks": [
+    {
+      "type": "path",
+      "from": {
+        "data": "links"
+      },
+      "encode": {
+        "update": {
+          "path": {
+            "field": "path"
+          },
+          "stroke": {
+            "value": "#ccc"
+          }
+        }
+      }
+    },
+    {
+      "type": "symbol",
+      "from": {
+        "data": "tree"
+      },
+      "encode": {
+        "enter": {
+          "size": {
+            "value": 100
+          },
+          "stroke": {
+            "value": "#fff"
+          }
+        },
+        "update": {
+          "x": {
+            "field": "x"
+          },
+          "y": {
+            "field": "y"
+          },
+          "fill": {
+            "scale": "color",
+            "field": "depth"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": {
+        "data": "tree"
+      },
+      "encode": {
+        "enter": {
+          "text": {
+            "field": "name"
+          },
+          "fontSize": {
+            "value": 11
+          },
+          "baseline": {
+            "value": "middle"
+          }
+        },
+        "update": {
+          "x": {
+            "field": "x"
+          },
+          "y": {
+            "field": "y"
+          },
+          "dx": {
+            "signal": "datum.children ? -8 : 8"
+          },
+          "align": {
+            "signal": "datum.children ? 'right' : 'left'"
+          }
+        }
+      }
+    }
+  ]
+}
