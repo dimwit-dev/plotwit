@@ -3,6 +3,7 @@ package plotwit.examples.nbody
 import dimwit.Conversions.given
 import dimwit.*
 import dimwit.stats.Uniform
+import io.circe.Json
 import io.circe.syntax.*
 import plotwit.*
 
@@ -96,7 +97,8 @@ def plot(): Unit =
       ).sample(massKey)
     SystemState(masses, initialPositions, initialVelocities)
 
-  // Run the simulation and collect the state trajectory to plot
+  // Run the simulation and collect the state trajectory to plot, giving every body its own colour
+  val bodyNames = (0 until numBodies).map(i => s"Body $i")
   val stateTrajectory = simulate(initialState)
   val specTrajectory = stateTrajectory.zipWithIndex
     .map:
@@ -105,7 +107,9 @@ def plot(): Unit =
           xs = state.positions.slice(Axis[Position].at(0)),
           ys = state.positions.slice(Axis[Position].at(1)),
           size = state.masses,
+          series = bodyNames,
           _.title := f"Step $i",
+          _.encoding.color.legend := Json.Null,
           _.encoding.x.scale.domain := List(-3, 3).asJson,
           _.encoding.y.scale.domain := List(-3, 3).asJson
         )

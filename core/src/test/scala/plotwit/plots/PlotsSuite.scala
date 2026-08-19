@@ -64,3 +64,36 @@ class HistogramPlotSuite extends DimwitTestSuite:
       specString should include("up")
       specString should include("down")
       specString should include("-4.0")
+
+  describe("plotScatter"):
+    it("should colour every point the same by default"):
+      val xs = Tensor1(Axis[A]).fromArray(Array(0.0f, 1.0f, 2.0f))
+      val ys = Tensor1(Axis[A]).fromArray(Array(0.0f, 1.0f, 4.0f))
+      val spec = scatterPlot(xs, ys, _.title := "Scattered")
+
+      val specString = spec.toString
+
+      specString should include("Scattered")
+      specString should include("circle")
+      specString should include("#4c78a8")
+      specString should not include ("series")
+
+    it("should colour points by series when series names are given"):
+      val xs = Tensor1(Axis[A]).fromArray(Array(0.0f, 1.0f, 2.0f))
+      val ys = Tensor1(Axis[A]).fromArray(Array(0.0f, 1.0f, 4.0f))
+      val sizes = Tensor1(Axis[A]).fromArray(Array(10.0f, 20.0f, 30.0f))
+      val spec = scatterPlot(xs, ys, sizes, Seq("a", "b", "c"))
+
+      val specString = spec.toString
+
+      specString should include("series")
+      specString should include("nominal")
+      specString should include("\"a\"")
+      specString should include("\"c\"")
+      specString should include("30.0")
+
+    it("should reject a series list that does not match the number of points"):
+      val xs = Tensor1(Axis[A]).fromArray(Array(0.0f, 1.0f, 2.0f))
+      val ys = Tensor1(Axis[A]).fromArray(Array(0.0f, 1.0f, 4.0f))
+
+      an[IllegalArgumentException] should be thrownBy scatterPlot(xs, ys, Seq("a", "b")).toString

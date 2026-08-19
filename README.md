@@ -70,12 +70,18 @@ plots.linePlot(
 ### Scatter plot
 
 `scatterPlot` places one point per index of the axis shared by `xs` and `ys`. An optional third tensor encodes the size
-of the points.
+of the points. All points share one colour.
 
 <img src="docs/plots/scatter.png" alt="Scatter plot" width="500">
 
 ```scala
 plots.scatterPlot(xs, ys, sizes, _.title := "y = 1.5 x + ε", _.encoding.x.title := "x", _.encoding.y.title := "y")
+```
+
+Passing a series name per point colours the points by series and adds a legend:
+
+```scala
+plots.scatterPlot(xs, ys, sizes, Seq("a", "a", "b"))
 ```
 
 [ScatterExample.scala](examples/src/main/scala/plots/ScatterExample.scala) — [scatter.png](docs/plots/scatter.png), [scatter.json](docs/plots/scatter.json)
@@ -162,7 +168,14 @@ A fitted line, layered on top of the observations it was fitted to:
 ```scala
 overlay(
   plots.scatterPlot(xs, observations, _.encoding.x.title := "x", _.encoding.y.title := "y"),
-  plots.linePlot(xs, fitted, _.title := "A line, fitted to noisy observations", _.encoding.x.title := "x", _.encoding.y.title := "y")
+  plots.linePlot(
+    xs,
+    fitted,
+    _.title := "A line, fitted to noisy observations",
+    _.encoding.x.title := "x",
+    _.encoding.y.title := "y",
+    _.encoding.color := Json.obj("value" -> Json.fromString("#f58518"))
+  )
 )
 ```
 
@@ -245,6 +258,6 @@ in [RenderPlots.scala](examples/src/main/scala/plots/RenderPlots.scala) and add 
 
 Five bodies, pulled around by their mutual gravity, simulated by the
 [n-body example](examples/src/main/scala/NBodyProblem.scala) — one `scatterPlot` per step, with the mass of a body as
-the size of its point. The example puts 1200 of those steps behind a `slider`.
+the size of its point and one series name per body, so that every body keeps its own colour. The example puts 1200 of those steps behind a `slider`.
 
 ![The n-body problem](docs/plots/nbody_animation.gif)
