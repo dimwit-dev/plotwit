@@ -2,19 +2,20 @@ package plotwit.examples.plots
 
 import plotwit.*
 
-/** The plots of the README gallery, by the name of the files they are rendered to. */
+/** The example plots, by the name of the files they are rendered to. */
 val galleryPlots: Seq[(String, () => VegaLiteSpec)] = Seq(
   "line" -> (() => LineExample.spec),
   "scatter" -> (() => ScatterExample.spec),
   "histogram" -> (() => HistogramExample.spec),
   "heatmap" -> (() => HeatmapExample.spec),
   "image" -> (() => ImageExample.spec),
+  "image_color" -> (() => ImageColorExample.spec),
   "tensor-tree" -> (() => TensorTreeExample.spec),
   "overlay" -> (() => OverlayExample.spec),
   "grid" -> (() => GridExample.spec)
 )
 
-/** Renders every plot of the README gallery to a PNG, next to the Vega JSON it was rendered from.
+/** Renders every example plot to a PNG, next to the Vega JSON it was rendered from.
   *
   * Run it with `sbt renderPlots`, which passes `docs/plots` as the output directory.
   */

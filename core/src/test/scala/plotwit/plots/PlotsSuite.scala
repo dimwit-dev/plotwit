@@ -97,3 +97,50 @@ class HistogramPlotSuite extends DimwitTestSuite:
       val ys = Tensor1(Axis[A]).fromArray(Array(0.0f, 1.0f, 4.0f))
 
       an[IllegalArgumentException] should be thrownBy scatterPlot(xs, ys, Seq("a", "b")).toString
+
+  describe("plotImage"):
+    it("should embed a greyscale image as a data uri"):
+      val image = Tensor2(Axis[A], Axis[B])
+        .fromArray(Array(Array(0, 128), Array(255, 64)))
+        .asInt(VType[UInt8])
+      val spec = imagePlot(image, _.title := "Greyscale")
+
+      val specString = spec.toString
+
+      specString should include("Greyscale")
+      specString should include("data:image/png;base64,")
+
+    it("should embed an RGB image as a data uri"):
+      val image = Tensor3(Axis[A], Axis[B], Axis[C])
+        .fromArray(
+          Array(
+            Array(Array(255, 0, 0), Array(0, 255, 0)),
+            Array(Array(0, 0, 255), Array(255, 255, 0))
+          )
+        )
+        .asInt(VType[UInt8])
+      val spec = imagePlot(image, _.title := "Colour")
+
+      val specString = spec.toString
+
+      specString should include("Colour")
+      specString should include("data:image/png;base64,")
+
+    it("should embed an RGBA image as a data uri"):
+      val image = Tensor3(Axis[A], Axis[B], Axis[D])
+        .fromArray(
+          Array(
+            Array(Array(255, 0, 0, 128), Array(0, 255, 0, 255)),
+            Array(Array(0, 0, 255, 0), Array(255, 255, 0, 255))
+          )
+        )
+        .asInt(VType[UInt8])
+
+      imagePlot(image).toString should include("data:image/png;base64,")
+
+    it("should reject a channel axis that is neither RGB nor RGBA"):
+      val image = Tensor3(Axis[A], Axis[B], Axis[E])
+        .fromArray(Array(Array(Array(1, 2), Array(3, 4))))
+        .asInt(VType[UInt8])
+
+      an[IllegalArgumentException] should be thrownBy imagePlot(image).toString
