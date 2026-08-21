@@ -18,18 +18,21 @@ object heatmapPlot:
         "description": "Heatmap created from Tensor2 data.",
         "title": "",
         "data": { "values": [] },
+        "width": 300,
+        "height": 300,
         "mark": "rect",
         "encoding": {
           "x": { 
             "field": "x", 
             "type": "ordinal", 
             "title": "",
-            "axis": { "labelAngle": 0 }
+            "axis": { "labelAngle": 0, "labels": true, "ticks": true }
           },
           "y": { 
             "field": "y", 
             "type": "ordinal", 
-            "title": "" 
+            "title": "",
+            "axis": { "labels": true, "ticks": true }
           },
           "color": { 
             "field": "value", 
