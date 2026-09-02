@@ -1,7 +1,7 @@
 run / fork := true
 Global / cancelable := true
 
-ThisBuild / version := "0.1.0-SNAPSHOT"
+ThisBuild / version := "0.2-SNAPSHOT"
 ThisBuild / scalaVersion := "3.8.1"
 ThisBuild / organization := "ch.contrafactus"
 
@@ -33,7 +33,7 @@ lazy val core = (project in file("core"))
       "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % Test,
       "dev.scalapy" %% "scalapy-core" % "0.5.3",
       // DimWit
-      "ch.contrafactus" %% "dimwit-core" % "0.1.0-SNAPSHOT" changing (),
+      "ch.contrafactus" %% "dimwit-core" % "0.2-SNAPSHOT" changing (),
       // Viz 4 Scala
       "io.github.quafadas" %% "dedav4s" % "0.10.5"
     ),
