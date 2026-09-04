@@ -1,11 +1,11 @@
-# plotwit
+# plotwit - Plots for [DimWit](https://github.com/dimwit-dev/dimwit) tensors
 
-Plots for [DimWit](https://github.com/dimwit-dev/dimwit) tensors.
+> [!WARNING]
+> plotwit is at an early stage of development. It works, but expect a limited
+> set of plots, rough edges, and breaking API changes.
 
-plotwit is a thin layer over [Vega-Lite](https://vega.github.io/vega-lite/): a plot is nothing but a Vega(-Lite) JSON
-spec, and plotwit is a collection of such specs that take DimWit tensors as their data. The tensor axes are named, so a
-plot can say what it expects — `linePlot` wants the `xs` and the `ys` to share an axis, `imagePlot` wants a
-`Tensor2[Width, Height, UInt8]` — and the compiler checks it for you.
+plotwit uses (dedav4s)[https://github.com/Quafadas/dedav4s], a thin layer over [Vega-Lite](https://vega.github.io/vega-lite/), where a plot is nothing but a Vega(-Lite) JSON. Essentially, plotwit is a set of such Vega-Lite templates with a DimWit tensor API. 
+The tensor axes are named, so a plot can say what it expects — `linePlot` wants the `xs` and the `ys` to share an axis, `imagePlot` wants a `Tensor2[Width, Height, UInt8]` — and the compiler checks it for you.
 
 ```scala
 import dimwit.*
