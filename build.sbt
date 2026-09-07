@@ -2,7 +2,7 @@ run / fork := true
 Global / cancelable := true
 
 ThisBuild / version := "0.2-SNAPSHOT"
-ThisBuild / scalaVersion := "3.8.1"
+ThisBuild / scalaVersion := "3.9.0"
 ThisBuild / organization := "ch.contrafactus"
 
 // Add resolver for snapshot dependencies
