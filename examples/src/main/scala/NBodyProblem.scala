@@ -103,9 +103,10 @@ def plot(): Unit =
   val specTrajectory = stateTrajectory.zipWithIndex
     .map:
       case (state, i) =>
+        val plotPositions = state.positions.clip(Tensor0(-3.0f), Tensor0(3.0f))
         plots.scatterPlot(
-          xs = state.positions.slice(Axis[Position].at(0)),
-          ys = state.positions.slice(Axis[Position].at(1)),
+          xs = plotPositions.slice(Axis[Position].at(0)),
+          ys = plotPositions.slice(Axis[Position].at(1)),
           size = state.masses,
           series = bodyNames,
           _.title := f"Step $i",
@@ -114,5 +115,5 @@ def plot(): Unit =
           _.encoding.y.scale.domain := List(-3, 3).asJson
         )
 
-  import plotwit.PlotTargets.desktopBrowser
-  display(slider(specTrajectory.take(1200).toSeq))
+  import plotwit.PlotTargets.websocket
+  display(slider(specTrajectory.take(600).toSeq))
