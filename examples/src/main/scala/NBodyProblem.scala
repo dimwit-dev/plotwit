@@ -47,7 +47,7 @@ def plot(): Unit =
     import bodyState.{mass, position, velocity}
     val acceleration =
       val relativeOffsets = positions -! position
-      val accelerationDirections = ((relativeOffsets /! (relativeOffsets.norm + eps)))
+      val accelerationDirections = (relativeOffsets /! (relativeOffsets.vmap(Axis[Body])(_.norm) +! eps))
         .relabel(Axis[Position] -> Axis[Acceleration])
       val relativeSquaredDistances = relativeOffsets.pow(2).sum(Axis[Position]) +! eps
       val accelerationMagnitudes = masses / relativeSquaredDistances
