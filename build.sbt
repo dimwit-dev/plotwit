@@ -1,12 +1,40 @@
 run / fork := true
 Global / cancelable := true
 
-ThisBuild / version := "0.2-SNAPSHOT"
+ThisBuild / version := "0.3-SNAPSHOT"
 ThisBuild / scalaVersion := "3.9.0"
 ThisBuild / organization := "ch.contrafactus"
 
+ThisBuild / versionScheme := Some("early-semver")
+
 // Add resolver for snapshot dependencies
 ThisBuild / resolvers += "Central Portal Snapshots" at "https://central.sonatype.com/repository/maven-snapshots/"
+
+// Publishing to Sonatype Central
+ThisBuild / sonatypeCredentialHost := "central.sonatype.com"
+ThisBuild / publishTo := {
+  if (isSnapshot.value)
+    Some("central-snapshots" at "https://central.sonatype.com/repository/maven-snapshots/")
+  else
+    sonatypePublishToBundle.value
+}
+ThisBuild / publishMavenStyle := true
+ThisBuild / homepage := Some(url("https://github.com/dimwit-dev/plotwit"))
+ThisBuild / licenses := List("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"))
+ThisBuild / scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/dimwit-dev/plotwit"),
+    "scm:git@github.com:dimwit-dev/plotwit.git"
+  )
+)
+ThisBuild / developers := List(
+  Developer(
+    id = "dimwit-dev",
+    name = "PlotWit Contributors",
+    email = "",
+    url = url("https://github.com/dimwit-dev")
+  )
+)
 
 // Setup for Scalafix and SemanticDB
 inThisBuild(Seq(
@@ -17,10 +45,16 @@ inThisBuild(Seq(
 
 addCommandAlias("testAndCoverage", "; clean; coverage; test; coverageReport")
 
+// alias for uploading core to Sonatype Central
+addCommandAlias("sonaUploadCore", "; project core; sonatypeCentralUpload; project root")
+
 lazy val root = (project in file("."))
   .aggregate(core, examples)
   .settings(
-    name := "plotwit-root"
+    name := "plotwit-root",
+    publish / skip := true,
+    publishLocal / skip := true,
+    publishArtifact := false
   )
 
 lazy val core = (project in file("core"))
@@ -33,7 +67,7 @@ lazy val core = (project in file("core"))
       "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % Test,
       "dev.scalapy" %% "scalapy-core" % "0.5.3",
       // DimWit
-      "ch.contrafactus" %% "dimwit-core" % "0.2-SNAPSHOT" changing (),
+      "ch.contrafactus" %% "dimwit-core" % "0.3-SNAPSHOT" changing (),
       // Viz 4 Scala
       "io.github.quafadas" %% "dedav4s" % "0.10.5"
     ),
@@ -51,8 +85,8 @@ lazy val examples = (project in file("examples"))
     ),
     fork := true,
     // Don't publish examples
-    publish := {},
-    publishLocal := {},
+    publish / skip := true,
+    publishLocal / skip := true,
     publishArtifact := false,
     // Examples source directory
     Compile / scalaSource := baseDirectory.value,
