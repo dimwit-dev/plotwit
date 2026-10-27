@@ -1,6 +1,5 @@
 package plotwit.examples.nbody
 
-import dimwit.Conversions.given
 import dimwit.*
 import dimwit.stats.Uniform
 import io.circe.Json
@@ -105,8 +104,8 @@ def plot(): Unit =
       case (state, i) =>
         val plotPositions = state.positions.clip(Tensor0(-3.0f), Tensor0(3.0f))
         plots.scatterPlot(
-          xs = plotPositions.slice(Axis[Position].at(0)),
-          ys = plotPositions.slice(Axis[Position].at(1)),
+          xs = plotPositions.select(Axis[Position].at(0)),
+          ys = plotPositions.select(Axis[Position].at(1)),
           size = state.masses,
           series = bodyNames,
           _.title := f"Step $i",
