@@ -18,14 +18,29 @@ inThisBuild(Seq(
 addCommandAlias("testAndCoverage", "; clean; coverage; test; coverageReport")
 
 lazy val root = (project in file("."))
-  .aggregate(core, examples)
+  .aggregate(core, plots, examples)
   .settings(
     name := "plotwit-root"
   )
 
+// Spec model, composition (overlay, grid, ...) and display. Independent of DimWit.
 lazy val core = (project in file("core"))
   .settings(
     name := "plotwit-core",
+    libraryDependencies ++= Seq(
+      "org.scalameta" %% "munit" % "1.0.0" % Test,
+      "org.scalatest" %% "scalatest" % "3.2.19" % Test,
+      "io.github.quafadas" %% "dedav4s" % "0.10.5"
+    ),
+    Compile / packageSrc / publishArtifact := true,
+    Compile / packageDoc / publishArtifact := true
+  )
+
+// Ready-made plots for DimWit tensors, built on core
+lazy val plots = (project in file("plots"))
+  .dependsOn(core)
+  .settings(
+    name := "plotwit-plots",
     libraryDependencies ++= Seq(
       "org.scalameta" %% "munit" % "1.0.0" % Test,
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
@@ -33,9 +48,7 @@ lazy val core = (project in file("core"))
       "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % Test,
       "dev.scalapy" %% "scalapy-core" % "0.5.3",
       // DimWit
-      "ch.contrafactus" %% "dimwit-core" % "0.2-SNAPSHOT" changing (),
-      // Viz 4 Scala
-      "io.github.quafadas" %% "dedav4s" % "0.10.5"
+      "ch.contrafactus" %% "dimwit-core" % "0.2-SNAPSHOT" changing ()
     ),
     Compile / packageSrc / publishArtifact := true,
     Compile / packageDoc / publishArtifact := true
@@ -43,7 +56,7 @@ lazy val core = (project in file("core"))
 
 // Examples subproject
 lazy val examples = (project in file("examples"))
-  .dependsOn(core)
+  .dependsOn(core, plots)
   .settings(
     name := "plotwit-examples",
     libraryDependencies ++= Seq(

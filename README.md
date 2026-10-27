@@ -24,20 +24,16 @@ display(plots.linePlot(xs, ys, _.title := "sin(x)"))
 
 ## Getting started
 
-plotwit is not published yet, so build it from source:
-
-```bash
-git clone https://github.com/dimwit-dev/plotwit.git
-cd plotwit
-sbt publishLocal
-```
-
-and depend on it:
-
+To use plotwit in your project, add the following to your `build.sbt`:
 ```scala
 resolvers += "Central Portal Snapshots" at "https://central.sonatype.com/repository/maven-snapshots/"
-libraryDependencies += "ch.contrafactus" %% "plotwit-core" % "0.1.0-SNAPSHOT"
+libraryDependencies += "ch.contrafactus" %% "plotwit-plots" % "0.2-SNAPSHOT"
 ```
+
+plotwit is split into two modules:
+
+- `plotwit-core`: the Vega-Lite spec model, composition (`overlay`, `hconcat`, `vconcat`, `grid`, `slider`) and `display`. It does not depend on DimWit.
+- `plotwit-plots`: the ready-made plots for DimWit tensors (`linePlot`, `scatterPlot`, `heatmapPlot`, ...). It depends on `plotwit-core`, so this is usually the only dependency you need.
 
 You need what DimWit needs: a JDK and a Python environment with JAX, managed by [uv](https://docs.astral.sh/uv/).
 

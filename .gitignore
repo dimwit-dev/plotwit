@@ -25,3 +25,5 @@ examples/vae_output
 
 uv.lock
 pyproject.toml
+
+plots/target
