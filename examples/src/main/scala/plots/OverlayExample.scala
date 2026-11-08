@@ -1,6 +1,5 @@
 package plotwit.examples.plots
 
-import dimwit.Conversions.given
 import dimwit.*
 import dimwit.stats.Normal
 import io.circe.Json

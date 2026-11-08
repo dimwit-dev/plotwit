@@ -1,6 +1,5 @@
 package plotwit.examples.heatequation
 
-import dimwit.Conversions.given
 import dimwit._
 import plotwit._
 

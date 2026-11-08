@@ -1,6 +1,5 @@
 package plotwit.examples.image
 
-import dimwit.Conversions.given
 import dimwit._
 import dimwit.stats.Normal
 import plotwit._
