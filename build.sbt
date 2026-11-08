@@ -69,7 +69,7 @@ lazy val core = (project in file("core"))
       // DimWit
       "ch.contrafactus" %% "dimwit-core" % "0.3-SNAPSHOT" changing (),
       // Viz 4 Scala
-      "io.github.quafadas" %% "dedav4s" % "0.10.5"
+      "io.github.quafadas" %% "dedav4s" % "0.10.9"
     ),
     Compile / packageSrc / publishArtifact := true,
     Compile / packageDoc / publishArtifact := true
