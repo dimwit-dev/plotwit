@@ -24,22 +24,13 @@ display(plots.linePlot(xs, ys, _.title := "sin(x)"))
 
 ## Getting started
 
-plotwit is not published yet, so build it from source:
-
-```bash
-git clone https://github.com/dimwit-dev/plotwit.git
-cd plotwit
-sbt publishLocal
-```
-
-and depend on it:
+plotwit is published as a snapshot to Sonatype Central. Add the snapshot repository and the dependency to your
+`build.sbt`:
 
 ```scala
 resolvers += "Central Portal Snapshots" at "https://central.sonatype.com/repository/maven-snapshots/"
-libraryDependencies += "ch.contrafactus" %% "plotwit-core" % "0.1.0-SNAPSHOT"
+libraryDependencies += "ch.contrafactus" %% "plotwit-core" % "0.3-SNAPSHOT"
 ```
-
-You need what DimWit needs: a JDK and a Python environment with JAX, managed by [uv](https://docs.astral.sh/uv/).
 
 ## Plot gallery
 
@@ -174,7 +165,7 @@ overlay(
     _.title := "A line, fitted to noisy observations",
     _.encoding.x.title := "x",
     _.encoding.y.title := "y",
-    _.encoding.color := Json.obj("value" -> Json.fromString("#f58518"))
+    _.mark.color := "#f58518"
   )
 )
 ```
@@ -203,7 +194,9 @@ grid(heatmaps.grouped(2).toSeq)
 
 Every plot takes a variable number of *mods* after its data. A mod is a typed path into the underlying Vega-Lite spec,
 so `_.encoding.x.title := "time"` sets `encoding.x.title` in the JSON. The paths are derived from the JSON template of
-the plot, which means the compiler rejects a field the template does not have:
+the plot, which means the compiler rejects a field the template does not have. The templates of `scatterPlot`,
+`linePlot` and `histogramPlot` spell out the mark, scale, axis and legend properties with the values Vega-Lite would
+choose, so each of them can be changed:
 
 ```scala
 plots.scatterPlot(
@@ -211,10 +204,17 @@ plots.scatterPlot(
   ys,
   _.title := "Positions",
   _.encoding.x.title := "x",
-  _.mark.filled := false,          // compiles: "mark": { "type": "circle", "filled": true }
-  _.encoding.x.axis.grid := false  // does not compile: the template has no "axis" under "encoding.x"
+  _.mark.size := 60,
+  _.mark.color := "#f58518",
+  _.encoding.x.axis.grid := false,
+  _.encoding.y.scale.reverse := true,
+  _.encoding.nonsense := 1         // does not compile: the template has no "nonsense" under "encoding"
 )
 ```
+
+Fields the plot derives from the data, such as the y domain of a line plot, are `null` in the template and can be set
+with a `Json`: `_.encoding.y.scale.domain := List(0, 1).asJson`. To add a property the template does not have, deep
+merge it into its parent object with `+=`, for example `_.mark += Json.obj("cursor" -> "pointer".asJson)`.
 
 For anything the template does not cover, work with the JSON itself — `toJson(spec)` returns the
 [circe](https://circe.github.io/circe/) `Json` of a plot, including its `$schema`.
