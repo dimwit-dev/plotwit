@@ -2,7 +2,6 @@ package plotwit.examples.plots
 
 import dimwit.*
 import dimwit.stats.Normal
-import io.circe.Json
 import plotwit.*
 
 /** A line, layered on top of the observations it was fitted to. */
@@ -30,6 +29,6 @@ object OverlayExample:
         _.encoding.x.title := "x",
         _.encoding.y.title := "y",
         // Set the line apart from the points it is fitted to, which carry the default colour
-        _.encoding.color := Json.obj("value" -> Json.fromString("#f58518"))
+        _.mark.color := "#f58518"
       )
     )

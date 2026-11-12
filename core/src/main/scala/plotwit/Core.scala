@@ -51,6 +51,18 @@ object Core:
 
   private[plotwit] def stripSchema(json: VegaJson): VegaJson = json.mapObject(_.remove("$schema"))
 
+  /** Removes every encoding channel that is set to null.
+    *
+    * A plot sets a channel to null when it has no data for it (a scatter plot without sizes, say), so that the
+    * corresponding mark property (`mark.size`) takes effect instead. Vega-Lite would warn about a null channel.
+    */
+  private[plotwit] def dropNullChannels(json: VegaJson): VegaJson =
+    json.hcursor
+      .downField("encoding")
+      .withFocus(_.mapObject(_.filter((_, channel) => !channel.isNull)))
+      .top
+      .getOrElse(json)
+
   private[plotwit] def toJsonUnit(spec: VegaLiteSpec): VegaJson = spec match
     case UnitSpec(config)                => stripSchema(config)
     case LayerSpec(layers, sharedConfig) =>

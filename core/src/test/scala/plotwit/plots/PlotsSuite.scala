@@ -92,6 +92,17 @@ class HistogramPlotSuite extends DimwitTestSuite:
       specString should include("\"c\"")
       specString should include("30.0")
 
+    it("should use the mark size and colour when there are no sizes and no series"):
+      val xs = Tensor1(Axis[A]).fromArray(Array(0.0f, 1.0f, 2.0f))
+      val ys = Tensor1(Axis[A]).fromArray(Array(0.0f, 1.0f, 4.0f))
+      val json = scatterPlot(xs, ys, _.mark.size := 60, _.mark.color := "#f58518").config
+
+      val encoding = json.hcursor.downField("encoding")
+      encoding.downField("size").succeeded shouldBe false
+      encoding.downField("color").succeeded shouldBe false
+      json.hcursor.downField("mark").get[Int]("size") shouldBe Right(60)
+      json.hcursor.downField("mark").get[String]("color") shouldBe Right("#f58518")
+
     it("should reject a series list that does not match the number of points"):
       val xs = Tensor1(Axis[A]).fromArray(Array(0.0f, 1.0f, 2.0f))
       val ys = Tensor1(Axis[A]).fromArray(Array(0.0f, 1.0f, 4.0f))
