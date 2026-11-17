@@ -155,3 +155,21 @@ class HistogramPlotSuite extends DimwitTestSuite:
         .asInt(VType[UInt8])
 
       an[IllegalArgumentException] should be thrownBy imagePlot(image).toString
+
+  describe("non-Float32 tensors"):
+    it("should plot Float64 and Float16 data with every float-valued plot"):
+      val xs64 = Tensor1(Axis[A]).fromArray(Array(0.0, 1.0, 2.0)).asFloat(VType[Float64])
+      val ys16 = Tensor1(Axis[A]).fromArray(Array(0.5f, 1.5f, 4.0f)).asFloat(VType[Float16])
+      val sizes16 = Tensor1(Axis[A]).fromArray(Array(10.0f, 20.0f, 30.0f)).asFloat(VType[Float16])
+      val grid16 = Tensor2(Axis[A], Axis[B])
+        .fromArray(Array(Array(1.0f, 2.0f), Array(3.0f, 4.5f)))
+        .asFloat(VType[Float16])
+      val lines64 = Tensor2(Axis[B], Axis[A])
+        .fromArray(Array(Array(0.0, 1.0, 4.0), Array(0.0, -1.0, -4.0)))
+        .asFloat(VType[Float64])
+
+      histogramPlot(ys16).toString should include("1.5")
+      heatmapPlot(grid16).toString should include("4.5")
+      linePlot(xs64, ys16).toString should include("1.5")
+      linePlot(xs64, lines64, Seq("up", "down")).toString should include("-4.0")
+      scatterPlot(xs64, ys16, sizes16, Seq("a", "b", "c")).toString should include("30.0")

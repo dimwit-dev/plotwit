@@ -148,26 +148,30 @@ object linePlot:
   import template.{M, spec}
 
   /** A single line through the points (xs, ys), drawn in `mark.color`. */
-  def apply[S: Label](xs: Tensor1[S, Float32], ys: Tensor1[S, Float32], mods: (M => SpecMod)*): UnitSpec =
-    apply(xs.toArray, Seq("" -> ys.toArray), Seq[M => SpecMod](_.encoding.color := Json.Null) ++ mods)
+  def apply[S: Label, X: IsFloating, Y: IsFloating](xs: Tensor1[S, X], ys: Tensor1[S, Y], mods: (M => SpecMod)*): UnitSpec =
+    apply(xs.asFloat32.toArray, Seq("" -> ys.asFloat32.toArray), Seq[M => SpecMod](_.encoding.color := Json.Null) ++ mods)
 
   /** One line per index of the L axis, all sharing the same xs. */
   @targetName("applySeries")
-  def apply[L: Label, S: Label](xs: Tensor1[S, Float32], ys: Tensor2[L, S, Float32], mods: (M => SpecMod)*): UnitSpec =
+  def apply[L: Label, S: Label, X: IsFloating, Y: IsFloating](
+      xs: Tensor1[S, X],
+      ys: Tensor2[L, S, Y],
+      mods: (M => SpecMod)*
+  ): UnitSpec =
     val label = summon[Label[L]].name
     apply(xs, ys, (0 until ys.shape(Axis[L])).map(i => s"${label}_$i"), mods*)
 
   /** One named line per index of the L axis, all sharing the same xs. */
   @targetName("applyNamedSeries")
-  def apply[L: Label, S: Label](
-      xs: Tensor1[S, Float32],
-      ys: Tensor2[L, S, Float32],
+  def apply[L: Label, S: Label, X: IsFloating, Y: IsFloating](
+      xs: Tensor1[S, X],
+      ys: Tensor2[L, S, Y],
       names: Seq[String],
       mods: (M => SpecMod)*
   ): UnitSpec =
     val numSeries = ys.shape(Axis[L])
     require(names.size == numSeries, s"Expected $numSeries series names, got ${names.size}")
-    apply(xs.toArray, names.zip(ys.toArray), mods)
+    apply(xs.asFloat32.toArray, names.zip(ys.asFloat32.toArray), mods)
 
   private def apply(
       xsArray: Array[Float],

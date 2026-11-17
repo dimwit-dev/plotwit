@@ -156,38 +156,38 @@ object scatterPlot:
   import template.{M, spec}
 
   /** The points (xs, ys), all in the same colour. */
-  def apply[S: Label](xs: Tensor1[S, Float32], ys: Tensor1[S, Float32], mods: (M => SpecMod)*): UnitSpec =
-    apply(xs, ys, None, None, mods)
+  def apply[S: Label, X: IsFloating, Y: IsFloating](xs: Tensor1[S, X], ys: Tensor1[S, Y], mods: (M => SpecMod)*): UnitSpec =
+    apply(xs.asFloat32, ys.asFloat32, None, None, mods)
 
   /** The points (xs, ys), all in the same colour, with the size of each point given by `size`. */
-  def apply[S: Label](
-      xs: Tensor1[S, Float32],
-      ys: Tensor1[S, Float32],
-      size: Tensor1[S, Float32],
+  def apply[S: Label, X: IsFloating, Y: IsFloating, Z: IsFloating](
+      xs: Tensor1[S, X],
+      ys: Tensor1[S, Y],
+      size: Tensor1[S, Z],
       mods: (M => SpecMod)*
   ): UnitSpec =
-    apply(xs, ys, Some(size), None, mods)
+    apply(xs.asFloat32, ys.asFloat32, Some(size.asFloat32), None, mods)
 
   /** The points (xs, ys), coloured by the series each point belongs to. */
   @targetName("applySeries")
-  def apply[S: Label](
-      xs: Tensor1[S, Float32],
-      ys: Tensor1[S, Float32],
+  def apply[S: Label, X: IsFloating, Y: IsFloating](
+      xs: Tensor1[S, X],
+      ys: Tensor1[S, Y],
       series: Seq[String],
       mods: (M => SpecMod)*
   ): UnitSpec =
-    apply(xs, ys, None, Some(series), mods)
+    apply(xs.asFloat32, ys.asFloat32, None, Some(series), mods)
 
   /** The points (xs, ys), sized by `size` and coloured by the series each point belongs to. */
   @targetName("applySizedSeries")
-  def apply[S: Label](
-      xs: Tensor1[S, Float32],
-      ys: Tensor1[S, Float32],
-      size: Tensor1[S, Float32],
+  def apply[S: Label, X: IsFloating, Y: IsFloating, Z: IsFloating](
+      xs: Tensor1[S, X],
+      ys: Tensor1[S, Y],
+      size: Tensor1[S, Z],
       series: Seq[String],
       mods: (M => SpecMod)*
   ): UnitSpec =
-    apply(xs, ys, Some(size), Some(series), mods)
+    apply(xs.asFloat32, ys.asFloat32, Some(size.asFloat32), Some(series), mods)
 
   private def apply[S: Label](
       xs: Tensor1[S, Float32],

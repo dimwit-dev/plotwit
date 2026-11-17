@@ -57,10 +57,10 @@ object heatmapPlot:
 
   import template.{M, spec}
 
-  def apply[L1: Label, L2: Label](data: Tensor2[L1, L2, Float32], mods: (M => SpecMod)*): UnitSpec = UnitSpec:
+  def apply[L1: Label, L2: Label, V: IsFloating](data: Tensor2[L1, L2, V], mods: (M => SpecMod)*): UnitSpec = UnitSpec:
     val rows = data.shape(Axis[L1])
     val cols = data.shape(Axis[L2])
-    val array = data.toArray
+    val array = data.asFloat32.toArray
     val jsonValues = (
       for
         r <- 0 until rows

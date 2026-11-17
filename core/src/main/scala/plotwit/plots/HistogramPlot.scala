@@ -125,10 +125,10 @@ object histogramPlot:
 
   import template.{M, spec}
 
-  def apply[L: Label](data: Tensor1[L, Float32], mods: (M => SpecMod)*): UnitSpec = UnitSpec:
+  def apply[L: Label, V: IsFloating](data: Tensor1[L, V], mods: (M => SpecMod)*): UnitSpec = UnitSpec:
     spec.build((
       Seq[M => SpecMod](
-        _.data.values := data.toArray.map: v =>
+        _.data.values := data.asFloat32.toArray.map: v =>
           Map("value" -> v)
         .asJson
       ) ++ mods
